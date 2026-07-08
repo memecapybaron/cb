@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAPYBARON — $BARON</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="baron.png">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #000; width: 100%; height: 100%; font-family: "Press Start 2P", monospace; color: #eafff2; overflow-x: hidden; }
+  canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; display: block; }
+
+  .page { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+
+  .nav { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 22px 5vw; }
+  .nav-logo { font-size: 12px; color: #CCFF00; text-shadow: 0 0 10px rgba(204,255,0,0.8); }
+  .nav-links { display: flex; gap: 22px; }
+  .nav-links a { color: #cfffe6; text-decoration: none; font-size: 9px; opacity: 0.85; transition: opacity 0.2s, color 0.2s; }
+  .nav-links a:hover { opacity: 1; color: #CCFF00; }
+
+  .hero { text-align: center; padding: 10vh 5vw 6vh; }
+  .capy-logo {
+    display: block;
+    margin: 0 auto 20px;
+    width: clamp(90px, 14vw, 160px);
+    height: clamp(90px, 14vw, 160px);
+    object-fit: contain;
+    border-radius: 50%;
+    border: 2px solid #CCFF00;
+    box-shadow: 0 0 25px rgba(204,255,0,0.5), 0 0 60px rgba(204,255,0,0.25);
+    background: rgba(0,0,0,0.4);
+  }
+  .hero-title {
+    font-size: clamp(32px, 9vw, 84px);
+    color: #eafff2;
+    letter-spacing: 2px;
+    text-shadow:
+      0 0 10px rgba(204,255,0,0.9),
+      0 0 30px rgba(204,255,0,0.6),
+      0 0 60px rgba(204,255,0,0.4);
+    line-height: 1.2;
+  }
+  .hero-sub {
+    margin-top: 18px;
+    font-size: clamp(11px, 2.2vw, 16px);
+    color: #CCFF00;
+    letter-spacing: 3px;
+    text-shadow: 0 0 8px rgba(204,255,0,0.6);
+  }
+  .hero-ticker {
+    display: inline-block;
+    margin-top: 26px;
+    padding: 10px 22px;
+    border: 2px solid #CCFF00;
+    border-radius: 30px;
+    font-size: 13px;
+    color: #CCFF00;
+    background: rgba(204,255,0,0.06);
+    box-shadow: 0 0 20px rgba(204,255,0,0.3);
+  }
+
+  .capy-emoji { font-size: clamp(50px, 12vw, 110px); margin: 30px 0; filter: drop-shadow(0 0 20px rgba(204,255,0,0.6)); }
+
+  .cta-row { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 34px; }
+  .btn {
+    font-family: inherit; font-size: 10px; padding: 14px 26px; border-radius: 10px;
+    cursor: pointer; border: 2px solid #CCFF00; letter-spacing: 1px;
+  }
+  .btn-primary { background: #CCFF00; color: #001a10; box-shadow: 0 0 25px rgba(204,255,0,0.6); }
+  .btn-ghost { background: transparent; color: #CCFF00; }
+
+  .badge-row { display:flex; gap: 14px; flex-wrap: wrap; justify-content:center; margin-top: 40px; }
+  .badge { font-size: 8px; color: #b9ffde; border: 1px solid rgba(204,255,0,0.4); padding: 8px 14px; border-radius: 20px; background: rgba(0,0,0,0.4); }
+
+  .section { width: min(1000px, 92vw); margin-top: 8vh; }
+  .section-title { font-size: clamp(16px, 3vw, 24px); color: #CCFF00; text-shadow: 0 0 10px rgba(204,255,0,0.6); margin-bottom: 26px; text-align: center; }
+
+  .info-card {
+    background: rgba(0, 15, 10, 0.55);
+    border: 1px solid rgba(204,255,0,0.35);
+    border-radius: 16px;
+    padding: 28px;
+    backdrop-filter: blur(4px);
+  }
+
+  .ca-box { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    background: rgba(0,0,0,0.5); border: 1px dashed rgba(204,255,0,0.5); border-radius: 10px; padding: 16px 20px; font-size: 10px; color: #cfffe6; }
+  .ca-copy { border: 1px solid #CCFF00; color: #CCFF00; background: transparent; padding: 8px 14px; border-radius: 8px; font-size: 9px; cursor: pointer; font-family: inherit; }
+
+  .tokenomics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-top: 10px; }
+  .token-item { text-align: center; padding: 18px 10px; border-radius: 12px; background: rgba(204,255,0,0.05); border: 1px solid rgba(204,255,0,0.25); }
+  .token-item .val { font-size: 16px; color: #CCFF00; margin-bottom: 8px; text-shadow: 0 0 8px rgba(204,255,0,0.5); }
+  .token-item .lab { font-size: 8px; color: #a9e9cd; letter-spacing: 1px; }
+
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; }
+  .step { padding: 20px; border-radius: 14px; background: rgba(204,255,0,0.05); border: 1px solid rgba(204,255,0,0.25); }
+  .step .num { font-size: 20px; color: #CCFF00; margin-bottom: 10px; }
+  .step p { font-size: 10px; line-height: 1.8; color: #d7ffe9; }
+
+  .roadmap { display: flex; flex-direction: column; gap: 14px; }
+  .road-item { display: flex; gap: 14px; align-items: flex-start; }
+  .road-dot { width: 10px; height: 10px; border-radius: 50%; background: #CCFF00; box-shadow: 0 0 10px #CCFF00; margin-top: 6px; flex-shrink: 0; }
+  .road-item p { font-size: 10px; line-height: 1.9; color: #d7ffe9; }
+  .road-item b { color: #CCFF00; }
+
+  .socials { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .social-btn { display:flex; align-items:center; gap:8px; padding: 12px 20px; border-radius: 10px; border: 1px solid rgba(204,255,0,0.4); color: #cfffe6; text-decoration:none; font-size: 9px; background: rgba(0,0,0,0.4); }
+  .social-btn:hover { border-color: #CCFF00; color: #CCFF00; }
+
+  .disclaimer { font-size: 8px; line-height: 2; color: #7fbfa2; text-align: center; padding: 40px 6vw 20px; max-width: 900px; }
+
+  footer { margin-top: 6vh; padding: 24px 5vw 60px; font-size: 8px; color: #6fa98e; text-align: center; }
+
+  @media (max-width: 560px) {
+    .nav-links { gap: 12px; }
+    .nav-links a { font-size: 8px; }
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div class="page">
+
+  <nav class="nav">
+    <div class="nav-logo">$BARON</div>
+    <div class="nav-links">
+      <a href="#tokenomics">Tokenomics</a>
+      <a href="#how-to-buy">How To Buy</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#community">Community</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <img class="capy-logo" src="baron.png" alt="CAPYBARON logo">
+    <h1 class="hero-title">CAPYBARON</h1>
+    <div class="hero-sub">CAPYBARA ON ROBINHOOD</div>
+    <div class="hero-ticker">$BARON</div>
+
+    <div class="cta-row">
+      <button class="btn btn-primary" onclick="alert('Contract address coming soon — follow our socials for the official announcement.')">BUY $BARON</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('how-to-buy').scrollIntoView({behavior:'smooth'})">HOW TO BUY</button>
+    </div>
+
+    <div class="badge-row">
+      <span class="badge">🔓 MINT REVOKE</span>
+      <span class="badge">🐹 100% COMMUNITY OWNED</span>
+    </div>
+  </section>
+
+  <section class="section" id="contract">
+    <div class="section-title">Contract Address</div>
+    <div class="info-card">
+      <div class="ca-box">
+        <span id="ca-text">CA: Coming Soon — will be posted on our official X (Twitter) at launch</span>
+        <button class="ca-copy" onclick="navigator.clipboard && navigator.clipboard.writeText(document.getElementById('ca-text').innerText)">COPY</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="tokenomics">
+    <div class="section-title">Tokenomics</div>
+    <div class="info-card">
+      <div class="tokenomics-grid">
+        <div class="token-item"><div class="val">1,000,000,000</div><div class="lab">TOTAL SUPPLY</div></div>
+        <div class="token-item"><div class="val">0%</div><div class="lab">TAX</div></div>
+        <div class="token-item"><div class="val">100%</div><div class="lab">LP AT LAUNCH</div></div>
+        <div class="token-item"><div class="val">0%</div><div class="lab">TEAM ALLOCATION</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="how-to-buy">
+    <div class="section-title">How To Buy</div>
+    <div class="steps">
+      <div class="step"><div class="num">01</div><p>Create an EVM-compatible wallet (e.g. MetaMask) and bridge or fund it with ETH on our Layer 2 network.</p></div>
+      <div class="step"><div class="num">02</div><p>Head to the official DEX on our L2 network and paste the verified $BARON contract address once announced.</p></div>
+      <div class="step"><div class="num">03</div><p>Set your slippage, swap for $BARON, and welcome to the burrow.</p></div>
+      <div class="step"><div class="num">04</div><p>Join the community and hold on tight — capybaras are calm, but charts can be wild.</p></div>
+    </div>
+  </section>
+
+  <section class="section" id="roadmap">
+    <div class="section-title">Roadmap</div>
+    <div class="info-card roadmap">
+      <div class="road-item"><div class="road-dot"></div><p><b>Phase 1 —</b> Launch website, socials, and community channels.</p></div>
+      <div class="road-item"><div class="road-dot"></div><p><b>Phase 2 —</b> Fair launch, mint revoke, and contract verification.</p></div>
+      <div class="road-item"><div class="road-dot"></div><p><b>Phase 3 —</b> Community growth, memes, and partnerships.</p></div>
+      <div class="road-item"><div class="road-dot"></div><p><b>Phase 4 —</b> CEX listing pushes and long-term ecosystem plans.</p></div>
+    </div>
+  </section>
+
+  <section class="section" id="community">
+    <div class="section-title">Community</div>
+    <div class="socials">
+      <a class="social-btn" href="#" onclick="alert('Official X (Twitter) link coming soon.'); return false;">𝕏 TWITTER — SOON</a>
+      <a class="social-btn" href="#" onclick="alert('Official Telegram link coming soon.'); return false;">✈️ TELEGRAM — SOON</a>
+    </div>
+  </section>
+
+  <p class="disclaimer">
+    $BARON (CAPYBARON) is a meme token with no intrinsic value and no guarantee of future performance.
+    It is not affiliated with, endorsed by, or listed on Robinhood or any other brokerage or exchange
+    named or implied on this page. Cryptocurrencies are highly volatile — only invest what you can
+    afford to lose. Nothing on this page is financial advice. Always verify the official contract
+    address from our own social channels before trading, and beware of scam tokens and fake contracts.
+  </p>
+
+  <footer>© CAPYBARON — $BARON. Community made. Not financial advice.</footer>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+// =====================================================
+// KATA SUMBER (uppercase) - digabung acak tanpa spasi
+// =====================================================
+const words = ['CAPYBARON', 'BARON'];
+const allLetters = words.join('').split('').filter((v, i, a) => a.indexOf(v) === i);
+
+function randomWord() { return words[Math.floor(Math.random() * words.length)]; }
+function randomGlitchChar() { return allLetters[Math.floor(Math.random() * allLetters.length)]; }
+function nextWordChar(st) {
+  if (st.buffer.length === 0) st.buffer = randomWord();
+  const ch = st.buffer[0];
+  st.buffer = st.buffer.slice(1);
+  return ch;
+}
+
+function buildColumnString(len) {
+  let s = '';
+  while (s.length < len) s += randomWord();
+  return s.slice(0, len).split('');
+}
+
+// Warna hijau neon: #CCFF00 -> rgb(204,255,0)
+const BASE_R = 20, BASE_G = 241, BASE_B = 149;
+const HEAD_R = 190, HEAD_G = 255, HEAD_B = 225; // versi terang untuk karakter terdepan
+const GLITCH_R = 255, GLITCH_G = 255, GLITCH_B = 255; // warna kilat saat huruf baru muncul di kepala
+
+// -- Ukuran --
+let W, H, fontSize, colCount;
+
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  fontSize = 15;
+  colCount = Math.floor(W / fontSize);
+  buildStreams();
+}
+
+// -- 3 lapisan kedalaman --
+const LAYERS = [
+  { speed: 0.3, alpha: 0.15, scale: 0.7, glow: 1,  density: 1.1 },
+  { speed: 0.6, alpha: 0.5,  scale: 1.0, glow: 5,  density: 0.75 },
+  { speed: 1.0, alpha: 0.9,  scale: 1.2, glow: 10, density: 0.4 },
+];
+
+let streams = [];
+
+function buildStreams() {
+  streams = [];
+  for (let layer = 0; layer < 3; layer++) {
+    const cfg = LAYERS[layer];
+    const count = Math.floor(colCount * cfg.density);
+    for (let i = 0; i < count; i++) {
+      const len = Math.floor((8 + Math.random() * 22) * (layer === 0 ? 0.6 : layer === 2 ? 1.3 : 1.0));
+      const y = Math.random() * H * 2.5 - H;
+      streams.push({
+        x: Math.random() * W,
+        y,
+        speed: (0.4 + Math.random() * 1.6) * cfg.speed,
+        len,
+        layer,
+        chars: buildColumnString(len),
+        glitchTimer: new Array(len).fill(0),
+        buffer: '',
+        lastRow: Math.floor(y / (fontSize * cfg.scale)),
+      });
+    }
+  }
+}
+
+// -- Scanline pattern --
+let scanlinePattern = null;
+function makeScanlinePattern() {
+  const pc = document.createElement('canvas');
+  pc.width = 4; pc.height = 4;
+  const pctx = pc.getContext('2d');
+  pctx.fillStyle = 'rgba(0,0,0,0)';
+  pctx.fillRect(0, 0, 4, 4);
+  pctx.fillStyle = 'rgba(0,0,0,0.12)';
+  pctx.fillRect(0, 0, 4, 1);
+  scanlinePattern = ctx.createPattern(pc, 'repeat');
+}
+
+// -- Vignette: gelap hanya di atas & bawah, kiri-kanan-tengah sama terang --
+let vignetteGrad = null;
+function makeVignette() {
+  vignetteGrad = ctx.createLinearGradient(0, 0, 0, H);
+  vignetteGrad.addColorStop(0, 'rgba(0,0,0,0.45)');
+  vignetteGrad.addColorStop(0.22, 'rgba(0,0,0,0)');
+  vignetteGrad.addColorStop(0.78, 'rgba(0,0,0,0)');
+  vignetteGrad.addColorStop(1, 'rgba(0,0,0,0.45)');
+}
+
+function drawScanlines() { if (!scanlinePattern) makeScanlinePattern(); ctx.fillStyle = scanlinePattern; ctx.fillRect(0, 0, W, H); }
+function drawVignette() { if (!vignetteGrad) makeVignette(); ctx.fillStyle = vignetteGrad; ctx.fillRect(0, 0, W, H); }
+
+function drawEdgeGlow() {
+  ctx.save();
+  let g = ctx.createLinearGradient(0, 0, 0, 50);
+  g.addColorStop(0, 'rgba(204,255,0,0.03)'); g.addColorStop(1, 'rgba(204,255,0,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, 50);
+  g = ctx.createLinearGradient(0, H - 50, 0, H);
+  g.addColorStop(0, 'rgba(204,255,0,0)'); g.addColorStop(1, 'rgba(204,255,0,0.03)');
+  ctx.fillStyle = g; ctx.fillRect(0, H - 50, W, 50);
+  ctx.restore();
+}
+
+// -- Glitch flash acak --
+let glitchY = -1, glitchH = 0, glitchAlpha = 0, glitchTimer = 120 + Math.random() * 200;
+function updateGlitch(dt) {
+  glitchTimer -= dt;
+  if (glitchTimer <= 0) {
+    glitchY = Math.random() * H;
+    glitchH = 4 + Math.random() * 18;
+    glitchAlpha = 0.5 + Math.random() * 0.4;
+    glitchTimer = 150 + Math.random() * 300;
+  }
+  if (glitchAlpha > 0) glitchAlpha -= 0.03 * dt;
+  else glitchY = -1;
+}
+function drawGlitch() {
+  if (glitchY < 0 || glitchAlpha <= 0) return;
+  ctx.save(); ctx.globalAlpha = glitchAlpha;
+  ctx.shadowColor = 'rgb(' + BASE_R + ',' + BASE_G + ',' + BASE_B + ')'; ctx.shadowBlur = 15;
+  ctx.fillStyle = 'rgb(' + BASE_R + ',' + BASE_G + ',' + BASE_B + ')';
+  ctx.fillRect(0, glitchY, W, glitchH);
+  ctx.restore();
+}
+
+// -- Main render --
+let lastFrame = performance.now();
+
+function render(now) {
+  requestAnimationFrame(render);
+  const rawDt = (now - lastFrame) / 16.667;
+  const dt = Math.min(rawDt, 3);
+  lastFrame = now;
+
+  updateGlitch(dt);
+
+  ctx.fillStyle = 'rgba(0,0,0,0.12)';
+  ctx.fillRect(0, 0, W, H);
+
+  for (let s = 0; s < streams.length; s++) {
+    const st = streams[s];
+    const cfg = LAYERS[st.layer];
+    const fs = fontSize * cfg.scale;
+
+    st.y += st.speed * dt;
+
+    const rowFloor = Math.floor(st.y / fs);
+    if (rowFloor > st.lastRow) {
+      const steps = Math.min(rowFloor - st.lastRow, st.len);
+      st.lastRow = rowFloor;
+      for (let step = 0; step < steps; step++) {
+        st.chars.unshift(nextWordChar(st));
+        st.chars.pop();
+        st.glitchTimer.unshift(5);
+        st.glitchTimer.pop();
+      }
+    }
+
+    for (let c = 0; c < st.len; c++) {
+      const cy = st.y - c * fs;
+      if (cy < -fs * 2 || cy > H + fs) continue;
+
+      const head = 1 - c / st.len;
+      const a = head * cfg.alpha;
+      if (a < 0.008) continue;
+
+      let displayChar = st.chars[c];
+      const isGlitching = st.glitchTimer[c] > 0;
+      if (isGlitching) {
+        displayChar = randomGlitchChar();
+        st.glitchTimer[c] -= dt;
+      } else if (Math.random() < 0.012 * dt) {
+        displayChar = randomGlitchChar();
+      }
+
+      let r, g, b;
+      if (isGlitching) { r = GLITCH_R; g = GLITCH_G; b = GLITCH_B; }
+      else if (c === 0) { r = HEAD_R; g = HEAD_G; b = HEAD_B; }
+      else if (c < 3) { r = Math.floor(BASE_R + (HEAD_R - BASE_R) * 0.4); g = BASE_G; b = Math.floor(BASE_B + (HEAD_B - BASE_B) * 0.3); }
+      else { r = Math.floor(BASE_R * head); g = Math.floor(BASE_G * (0.3 + head * 0.7)); b = Math.floor(BASE_B * head); }
+
+      ctx.save();
+      ctx.font = fs + 'px "Press Start 2P", monospace';
+      ctx.textBaseline = 'top';
+
+      if (st.layer >= 1 && c < 5) {
+        ctx.shadowColor = 'rgba(' + BASE_R + ',' + BASE_G + ',' + BASE_B + ',' + (Math.min(1, a) * 0.75).toFixed(3) + ')';
+        ctx.shadowBlur = cfg.glow;
+      } else if (st.layer === 2) {
+        ctx.shadowColor = 'rgba(' + BASE_R + ',' + BASE_G + ',' + BASE_B + ',' + (Math.min(1, a) * 0.25).toFixed(3) + ')';
+        ctx.shadowBlur = 2;
+      } else { ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; }
+
+      ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + Math.min(1, a).toFixed(3) + ')';
+      ctx.fillText(displayChar, st.x, cy);
+      ctx.restore();
+    }
+
+    if (st.y - st.len * fs > H + 60) {
+      st.y = -st.len * fs - Math.random() * H * 0.5;
+      st.x = Math.random() * W;
+      st.speed = (0.4 + Math.random() * 1.6) * cfg.speed;
+      st.len = Math.floor((8 + Math.random() * 22) * (st.layer === 0 ? 0.6 : st.layer === 2 ? 1.3 : 1.0));
+      st.chars = buildColumnString(st.len);
+      st.glitchTimer = new Array(st.len).fill(0);
+      st.buffer = '';
+      st.lastRow = Math.floor(st.y / fs);
+    }
+  }
+
+  drawGlitch();
+  drawEdgeGlow();
+  drawScanlines();
+  drawVignette();
+}
+
+window.addEventListener('resize', () => { resize(); scanlinePattern = null; vignetteGrad = null; });
+resize();
+requestAnimationFrame(render);
+</script>
+</body>
+</html>
