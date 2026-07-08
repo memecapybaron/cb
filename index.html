@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CAPYBARON — $BARON</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-<link rel="icon" type="image/png" href="baron.png">
 <style>
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { background: #000; width: 100%; height: 100%; font-family: "Press Start 2P", monospace; color: #eafff2; overflow-x: hidden; }
@@ -20,17 +19,6 @@
   .nav-links a:hover { opacity: 1; color: #CCFF00; }
 
   .hero { text-align: center; padding: 10vh 5vw 6vh; }
-  .capy-logo {
-    display: block;
-    margin: 0 auto 20px;
-    width: clamp(90px, 14vw, 160px);
-    height: clamp(90px, 14vw, 160px);
-    object-fit: contain;
-    border-radius: 50%;
-    border: 2px solid #CCFF00;
-    box-shadow: 0 0 25px rgba(204,255,0,0.5), 0 0 60px rgba(204,255,0,0.25);
-    background: rgba(0,0,0,0.4);
-  }
   .hero-title {
     font-size: clamp(32px, 9vw, 84px);
     color: #eafff2;
@@ -61,6 +49,8 @@
   }
 
   .capy-emoji { font-size: clamp(50px, 12vw, 110px); margin: 30px 0; filter: drop-shadow(0 0 20px rgba(204,255,0,0.6)); }
+
+  .capy-logo { max-width: clamp(80px, 18vw, 160px); height: auto; margin-bottom: 10px; filter: drop-shadow(0 0 20px rgba(204,255,0,0.6)); }
 
   .cta-row { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 34px; }
   .btn {
